@@ -1,0 +1,110 @@
+#Run on Thonny
+
+#Read all .jpg and .png files from the folder /content/images/.
+import glob
+folder_path = "image_Folder"
+for file in glob.glob(folder_path + r"\*.jp*g"):
+    print(file)
+
+#Display each image using matplotlib.
+import glob
+import os
+import imageio.v2 as iio
+import matplotlib.pyplot as plt
+
+# Folder containing your images
+folder_path = "image_Folder"
+
+# Get all .jpg and .png files in the folder
+image_files = glob.glob(os.path.join(folder_path, "*.jpg")) + \
+              glob.glob(os.path.join(folder_path, "*.png"))
+
+# Loop through each image and display it
+for file in image_files:
+    img = iio.imread(file)
+    plt.imshow(img)
+    plt.axis('off')
+    plt.title(os.path.basename(file))  # optional: show filename
+    plt.show()
+
+#. Store the filename, width, and height of each image in a list of dictionaries.
+import glob
+import os
+import imageio.v2 as iio
+
+# Folder containing your images
+folder_path = "image_Folder"
+
+# Get all image files (jpg and png)
+image_files = glob.glob(os.path.join(folder_path, "*.jpg")) + \
+              glob.glob(os.path.join(folder_path, "*.png"))
+
+# List to store image info
+image_info_list = []
+
+for file in image_files:
+    img = iio.imread(file)  # read image
+    info = {
+        "filename": os.path.basename(file),
+        "width": img.shape[1],   # shape: (height, width, channels)
+        "height": img.shape[0]
+    }
+    image_info_list.append(info)
+
+#Determine the largest and smallest images based on pixel area (width × height).
+import glob
+import os
+import imageio.v2 as iio
+
+folder_path = "image_Folder"
+
+# Collect all JPG and PNG files
+image_files = glob.glob(os.path.join(folder_path, "*.jpg")) + \
+              glob.glob(os.path.join(folder_path, "*.png"))
+
+# List to store info
+image_info_list = []
+
+for file in image_files:
+    img = iio.imread(file)
+    width = img.shape[1]
+    height = img.shape[0]
+    area = width * height  # pixel area
+
+    info = {
+        "filename": os.path.basename(file),
+        "width": width,
+        "height": height,
+        "area": area
+    }
+    image_info_list.append(info)
+
+# Determine largest and smallest images by area
+largest_image = max(image_info_list, key=lambda x: x["area"])
+smallest_image = min(image_info_list, key=lambda x: x["area"])
+
+print("Largest image:")
+print(largest_image)
+
+print("\nSmallest image:")
+print(smallest_image)
+
+#Save the extracted information into a CSV file named image_sizes.csv.
+import glob, os, csv, imageio.v2 as iio
+
+folder = "image_Folder"
+files = glob.glob(folder + r"\*.jpg") + glob.glob(folder + r"\*.png")
+
+data = []
+
+for f in files:
+    img = iio.imread(f)
+    data.append([os.path.basename(f), img.shape[1], img.shape[0], img.shape[1] * img.shape[0]])
+
+with open("image_sizes.csv", "w", newline="") as file:
+    writer = csv.writer(file)
+    writer.writerow(["filename", "width", "height", "area"])
+    writer.writerows(data)
+
+print("image_sizes.csv created!")
+
