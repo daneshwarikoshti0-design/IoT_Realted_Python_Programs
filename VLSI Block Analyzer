@@ -1,0 +1,211 @@
+# Defines a ChipBlock class to store block attributes
+class ChipBlock:
+    def __init__(self, name, width, height, layer, power=0.0, delay=0.0):
+        self.name = name
+        self.width = width
+        self.height = height
+        self.layer = layer
+        self.power = power      # in Watts
+        self.delay = delay      # in ns
+
+#Implements methods for computing performance index, power density, and timing violation detection
+    def area(self):
+        return self.width * self.height
+
+    # Computes performance index (example: area divided by layer factor)
+    def performance_index(self, layer_factor=1.0):
+        return self.area() / layer_factor
+
+    # Computes power density (Power per mm²)
+    def power_density(self):
+        return self.power / self.area() if self.area() != 0 else 0
+
+    # Checks if timing is violated
+    def timing_violation(self, max_delay):
+        return self.delay > max_delay
+
+    def __str__(self):
+        return (f"{self.name} | {self.width}x{self.height} | Layer: {self.layer} | "
+                f"Area: {self.area()} | Power: {self.power}W | Delay: {self.delay}ns")
+
+
+# Example Usage
+block1 = ChipBlock("BlockA", 50, 30, "Metal1", power=2.5, delay=1.2)
+block2 = ChipBlock("BlockB", 80, 40, "Metal2", power=3.0, delay=2.1)
+
+print(block1)
+print(block2)
+
+print("Area of BlockA:", block1.area())
+print("Performance Index of BlockA:", block1.performance_index(layer_factor=1.5))
+print("Power Density of BlockA:", block1.power_density())
+print("Timing Violation of BlockA (max=1ns):", block1.timing_violation(1.0))
+
+#Converts the input data into a list of ChipBlock objects
+def create_chipblocks_from_data(data_list):
+    """
+    Converts a list of dictionaries into ChipBlock objects.
+    Each dictionary must contain: name, width, height, layer
+    Optional: power, delay
+    """
+    chipblocks = []
+    
+    for item in data_list:
+        block = ChipBlock(
+            name=item["name"],
+            width=item["width"],
+            height=item["height"],
+            layer=item["layer"],
+            power=item.get("power", 0.0),
+            delay=item.get("delay", 0.0)
+        )
+        chipblocks.append(block)
+
+    return chipblocks
+#Sample I/p
+input_data = [
+    {"name": "BlockA", "width": 50, "height": 30, "layer": "Metal1", "power": 2.5, "delay": 1.2},
+    {"name": "BlockB", "width": 80, "height": 40, "layer": "Metal2"},
+    {"name": "BlockC", "width": 60, "height": 25, "layer": "Metal3", "power": 1.8}
+]
+
+#data to blocks
+blocks = create_chipblocks_from_data(input_data)
+
+#o/p
+for b in blocks:
+    print(b)
+
+
+#Creates a Pandas DataFrame from the objects.
+import pandas as pd
+
+def chipblocks_to_dataframe(blocks):
+    """
+    Converts a list of ChipBlock objects into a Pandas DataFrame.
+    """
+    data = []
+    for b in blocks:
+        data.append({
+            "Name": b.name,
+            "Width": b.width,
+            "Height": b.height,
+            "Layer": b.layer,
+            "Area": b.area(),
+            "Power (W)": b.power,
+            "Delay (ns)": b.delay,
+            "Power Density (W/mm^2)": b.power_density(),
+            "Performance Index": b.performance_index()
+        })
+    
+    df = pd.DataFrame(data)
+    return df
+# Convert objects → DataFrame
+df = chipblocks_to_dataframe(blocks)
+print(df)
+
+#Uses NumPy to compute mean delay and maximum power density.
+import numpy as np
+
+def compute_numpy_stats(blocks):
+    """
+    Uses NumPy to compute:
+      - Mean delay of all chip blocks
+      - Maximum power density among all blocks
+    """
+    delays = np.array([b.delay for b in blocks])
+    power_densities = np.array([b.power_density() for b in blocks])
+
+    mean_delay = np.mean(delays)
+    max_power_density = np.max(power_densities)
+
+    return mean_delay, max_power_density
+
+#usage_Numpy
+mean_delay, max_pd = compute_numpy_stats(blocks)
+
+print("Mean Delay:", mean_delay)
+print("Max Power Density:", max_pd)
+
+#Identifies the worst block based on performance index.
+def get_worst_block(blocks, layer_factor=1.0):
+    """
+    Identifies the worst-performing block based on performance index.
+    Lower performance index = worse block.
+    """
+    if not blocks:
+        return None
+
+    # Compute performance index for each block
+    worst_block = min(blocks, key=lambda b: b.performance_index(layer_factor))
+
+    return worst_block
+
+#Usage
+worst = get_worst_block(blocks)
+
+print("Worst Block (Performance Index):")
+print(worst)
+
+#Generates a summary CSV, JSON report, and a delay bar plot.
+import pandas as pd
+
+def generate_summary_csv(blocks, filename="chipblock_summary.csv"):
+    df = pd.DataFrame([{
+        "Name": b.name,
+        "Width": b.width,
+        "Height": b.height,
+        "Layer": b.layer,
+        "Area": b.area(),
+        "Power (W)": b.power,
+        "Delay (ns)": b.delay,
+        "Power Density": b.power_density(),
+        "Performance Index": b.performance_index(),
+    } for b in blocks])
+
+    df.to_csv(filename, index=False)
+    print(f"CSV report generated: {filename}")
+
+import json
+
+def generate_json_report(blocks, filename="chipblock_report.json"):
+    data = [{
+        "name": b.name,
+        "width": b.width,
+        "height": b.height,
+        "layer": b.layer,
+        "area": b.area(),
+        "power": b.power,
+        "delay": b.delay,
+        "power_density": b.power_density(),
+        "performance_index": b.performance_index()
+    } for b in blocks]
+
+    with open(filename, "w") as f:
+        json.dump(data, f, indent=4)
+
+    print(f"JSON report generated: {filename}")
+
+import matplotlib.pyplot as plt
+
+def plot_delay_bar(blocks, filename="delay_plot.png"):
+    names = [b.name for b in blocks]
+    delays = [b.delay for b in blocks]
+
+    plt.figure(figsize=(8, 5))
+    plt.bar(names, delays)
+    plt.xlabel("Block Name")
+    plt.ylabel("Delay (ns)")
+    plt.title("Delay Comparison of Chip Blocks")
+    plt.tight_layout()
+    plt.savefig(filename)
+    plt.close()
+
+    print(f"Delay bar plot saved as: {filename}")
+
+def generate_all_reports(blocks):
+    generate_summary_csv(blocks)
+    generate_json_report(blocks)
+    plot_delay_bar(blocks)
+
+generate_all_reports(blocks)
