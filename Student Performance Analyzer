@@ -1,0 +1,76 @@
+#Create a function that calculates the total marks for each student.
+def calculate_total(student):
+    return student["math"] + student["science"] + student["english"]
+
+students = [
+    {"name": "kavya", "math": 85, "science": 90, "english": 78},
+    {"name": "kartik",   "math": 70, "science": 88, "english": 92},
+    {"name": "palguni",   "math": 85, "science": 60, "english": 96},
+    {"name": "shashi",   "math": 75, "science": 56, "english": 88},
+    {"name": "anjali",   "math": 77, "science": 98, "english": 92},
+]
+
+for s in students:
+    total = calculate_total(s)
+    print(s["name"], "Total Marks =", total)
+
+#Add a new key named 'total' to each dictionary
+def calculate_total(student):
+    return student["math"] + student["science"] + student["english"]
+
+students = [
+    {"name": "kavya", "math": 85, "science": 90, "english": 78},
+    {"name": "kartik",   "math": 70, "science": 88, "english": 92},
+    {"name": "palguni",   "math": 85, "science": 60, "english": 96},
+    {"name": "shashi",   "math": 75, "science": 56, "english": 88},
+    {"name": "anjali",   "math": 77, "science": 98, "english": 92},
+]
+
+for s in students:
+    s["total"] = calculate_total(s)
+
+print(students)
+
+#Sort the student list based on total marks in descending order.
+sorted_students = sorted(students, key=lambda x: x["total"], reverse=True)
+
+print(sorted_students)
+
+#Identify the topper, lowest performer, and subject-wise highest scores.
+# Topper and lowest performer
+topper = max(students, key=lambda x: x["total"])
+lowest = min(students, key=lambda x: x["total"])
+
+# Subject-wise highest scores
+highest_math = max(students, key=lambda x: x["math"])
+highest_science = max(students, key=lambda x: x["science"])
+highest_english = max(students, key=lambda x: x["english"])
+
+print("Topper:", topper["name"], "=>", topper["total"])
+print("Lowest performer:", lowest["name"], "=>", lowest["total"])
+
+print("\nSubject-wise highest scorers:")
+print("Math:", highest_math["name"], "=>", highest_math["math"])
+print("Science:", highest_science["name"], "=>", highest_science["science"])
+print("English:", highest_english["name"], "=>", highest_english["english"])
+
+#Save your final structured report into a text file named student_report.txt.
+# Create report text
+report = f"""
+STUDENT PERFORMANCE REPORT
+--------------------------
+
+Topper: {topper['name']} (Total: {topper['total']})
+Lowest Performer: {lowest['name']} (Total: {lowest['total']})
+
+Subject-wise Highest Scores:
+Math: {highest_math['name']} ({highest_math['math']})
+Science: {highest_science['name']} ({highest_science['science']})
+English: {highest_english['name']} ({highest_english['english']})
+"""
+
+# Save report to file
+with open("student_report.txt", "w") as file:
+    file.write(report)
+
+print("Report saved as student_report.txt")
